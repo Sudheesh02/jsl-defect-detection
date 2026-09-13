@@ -33,3 +33,4 @@ build/
 *.onnx
 *.bin
 *.engine
+.vercel

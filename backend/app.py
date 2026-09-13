@@ -40,6 +40,29 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+from starlette.types import ASGIApp, Scope, Receive, Send
+from urllib.parse import parse_qs, urlencode
+
+class VercelPathRewriteMiddleware:
+    """Restores the original request path from the Vercel rewrite __path__ parameter."""
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        if scope["type"] == "http":
+            query_string = scope.get("query_string", b"").decode("utf-8")
+            if "__path__" in query_string:
+                params = parse_qs(query_string, keep_blank_values=True)
+                if "__path__" in params and params["__path__"]:
+                    raw_subpath = params["__path__"][0]
+                    clean_path = "/" + raw_subpath.lstrip("/")
+                    scope["path"] = clean_path
+                    scope["raw_path"] = clean_path.encode("utf-8")
+                    del params["__path__"]
+                    new_qs = urlencode(params, doseq=True)
+                    scope["query_string"] = new_qs.encode("utf-8")
+        await self.app(scope, receive, send)
+
 # CORS middleware for development flexibility
 app.add_middleware(
     CORSMiddleware,
@@ -48,6 +71,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(VercelPathRewriteMiddleware)
+
 
 # Mount Routers (both /api and direct paths for dual local & Vercel serverless compatibility)
 app.include_router(meta_router, prefix="/api")
@@ -70,3 +95,5 @@ async def get_dashboard():
     if index_path.exists():
         return FileResponse(str(index_path))
     return HTMLResponse("<h1>Jindal Stainless AI Defect Detection Platform</h1><p>Static dashboard loading...</p>")
+
+
