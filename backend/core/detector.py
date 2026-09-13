@@ -17,11 +17,15 @@ try:
     from huggingface_hub import hf_hub_download
 except ImportError:
     def hf_hub_download(repo_id: str, filename: str, **kwargs):
-        # Return path to a dummy model file in the workspace
-        dummy_path = os.path.abspath(os.path.join(os.getcwd(), "dummy_model.pt"))
+        # Return path to a dummy model file in the temp directory (serverless compatible)
+        import tempfile
+        dummy_path = os.path.join(tempfile.gettempdir(), "dummy_model.pt")
         if not os.path.isfile(dummy_path):
-            with open(dummy_path, "wb") as f:
-                f.write(b"")
+            try:
+                with open(dummy_path, "wb") as f:
+                    f.write(b"")
+            except Exception:
+                pass
         return dummy_path
 from ultralytics import YOLO
 
