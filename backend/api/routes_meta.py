@@ -14,7 +14,7 @@ from backend.core.grade_profiles import GRADE_PROFILES
 from backend.core.metallurgy_engine import EXTENDED_DEFECT_TAXONOMY
 from backend.api.schemas import HealthResponse, SampleItem
 
-router = APIRouter(prefix="/api", tags=["Metadata & Health"])
+router = APIRouter(tags=["Metadata & Health"])
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check():

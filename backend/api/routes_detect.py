@@ -27,7 +27,7 @@ from backend.api.schemas import (
     BenchmarkResponse
 )
 
-router = APIRouter(prefix="/api", tags=["Defect Inspection & Benchmarks"])
+router = APIRouter(tags=["Defect Inspection & Benchmarks"])
 
 # Global singleton detector instance initialized at app startup
 _detector: Optional[SteelDefectDetector] = None

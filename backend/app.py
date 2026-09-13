@@ -49,7 +49,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount Routers
+# Mount Routers (both /api and direct paths for dual local & Vercel serverless compatibility)
+app.include_router(meta_router, prefix="/api")
+app.include_router(detect_router, prefix="/api")
 app.include_router(meta_router)
 app.include_router(detect_router)
 
