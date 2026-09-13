@@ -1,0 +1,21 @@
+<annotation>
+	<folder>raw_images</folder>
+	<filename>steelx_bs_05.jpg</filename>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>scratches</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>90</xmin>
+			<ymin>56</ymin>
+			<xmax>108</xmax>
+			<ymax>168</ymax>
+		</bndbox>
+	</object>
+</annotation>

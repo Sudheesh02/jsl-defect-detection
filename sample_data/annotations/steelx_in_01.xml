@@ -1,0 +1,21 @@
+<annotation>
+	<folder>raw_images</folder>
+	<filename>steelx_in_01.jpg</filename>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>inclusion</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>81</xmin>
+			<ymin>0</ymin>
+			<xmax>130</xmax>
+			<ymax>33</ymax>
+		</bndbox>
+	</object>
+</annotation>

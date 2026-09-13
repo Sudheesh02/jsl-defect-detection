@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Hidden internal notes, prompts, agent logs, and judging skills
+.internal/
+.agents/
+.pytest_cache/
+
+# Environments and Secrets
+.env
+.env.*
+*.env
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Build artifacts and caches
+.vercel/
+.next/
+dist/
+build/
+*.egg-info/
+
+# Model weights & binaries
+*.pt
+*.pth
+*.onnx
+*.bin
+*.engine

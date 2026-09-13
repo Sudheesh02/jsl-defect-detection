@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jindal Stainless | AI-Powered Surface Defect Detection</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <span class="logo-jsl">JSL</span>
+        <span class="logo-spark">SPARK</span>
+      </div>
+      <div class="header-title-block">
+        <h1>AI Surface Defect Inspection System</h1>
+        <p class="subtitle">Real-Time Strip Quality Assurance &amp; Metallurgical Disposition Engine</p>
+      </div>
+    </div>
+    <div class="header-telemetry" id="headerTelemetry">
+      <div class="telemetry-pill">
+        <span class="dot live"></span>
+        <span class="pill-label">Hardware:</span>
+        <span class="pill-val" id="telemetryDevice">NVIDIA GPU (CUDA)</span>
+      </div>
+      <div class="telemetry-pill">
+        <span class="pill-label">Inference:</span>
+        <span class="pill-val" id="telemetrySpeed">~30 ms</span>
+      </div>
+      <div class="telemetry-pill">
+        <span class="pill-label">System Status:</span>
+        <span class="pill-val text-green" id="telemetryStatus">ONLINE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="main-container">
+    
+    <!-- Left Sidebar: Controls & Presets -->
+    <aside class="sidebar-panel">
+      <div class="panel-section">
+        <h2 class="section-title">1. Stainless Steel Grade</h2>
+        <div class="form-group">
+          <label for="gradeSelect">Alloy &amp; Tolerance Standard:</label>
+          <select id="gradeSelect" class="styled-select">
+            <option value="SS_304" selected>AISI 304 (Architectural Standard)</option>
+            <option value="SS_316L">AISI 316L (Marine / High Corrosion)</option>
+            <option value="SS_430">AISI 430 (Ferritic Automotive Trim)</option>
+            <option value="SS_201">AISI 201 (Commercial Economy)</option>
+            <option value="DUPLEX_2205">Duplex 2205 (High-Pressure Duplex)</option>
+          </select>
+          <p class="field-hint" id="gradeHint">Aesthetic sensitivity is high. Scratches and roll marks are penalized.</p>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2 class="section-title">2. Curated Real Dataset Presets</h2>
+        <p class="section-desc">Click any real NEU-DET / SteelDefectX sample to inspect:</p>
+        <div class="preset-grid" id="presetGrid">
+          <button class="preset-btn" data-file="crazing_1.jpg" data-class="crazing">
+            <span class="preset-tag tag-crazing">Crazing #1</span>
+            <span class="preset-sub">Thermal Micro-Cracks</span>
+          </button>
+          <button class="preset-btn" data-file="inclusion_1.jpg" data-class="inclusion">
+            <span class="preset-tag tag-inclusion">Inclusion #1</span>
+            <span class="preset-sub">Smelting Slag</span>
+          </button>
+          <button class="preset-btn" data-file="patches_1.jpg" data-class="patches">
+            <span class="preset-tag tag-patches">Patches #1</span>
+            <span class="preset-sub">Roll Slippage</span>
+          </button>
+          <button class="preset-btn" data-file="pitted_surface_1.jpg" data-class="pitted_surface">
+            <span class="preset-tag tag-pitted_surface">Pitted Surface #1</span>
+            <span class="preset-sub">Localized Corrosion</span>
+          </button>
+          <button class="preset-btn" data-file="rolled-in_scale_1.jpg" data-class="rolled-in_scale">
+            <span class="preset-tag tag-rolled-in_scale">Rolled-in Scale #1</span>
+            <span class="preset-sub">Hot Mill Oxides</span>
+          </button>
+          <button class="preset-btn" data-file="scratches_1.jpg" data-class="scratches">
+            <span class="preset-tag tag-scratches">Scratches #1</span>
+            <span class="preset-sub">Guide Abrasion</span>
+          </button>
+          <button class="preset-btn" data-file="defect_free_strip_1.jpg" data-class="clean">
+            <span class="preset-tag tag-clean">Defect-Free Strip</span>
+            <span class="preset-sub">Clean Brushed Strip</span>
+          </button>
+          <button class="preset-btn" data-file="defect_free_strip_3_mirror.jpg" data-class="clean">
+            <span class="preset-tag tag-clean">Mirror BA Finish</span>
+            <span class="preset-sub">Bright Annealed Clean</span>
+          </button>
+          <button class="preset-btn" data-file="steelx_bs_05.jpg" data-class="scratches">
+            <span class="preset-tag tag-scratches">SteelDefectX: Scratch</span>
+            <span class="preset-sub">Bright Scratch Research</span>
+          </button>
+          <button class="preset-btn" data-file="steelx_in_01.jpg" data-class="inclusion">
+            <span class="preset-tag tag-inclusion">SteelDefectX: Inclusion</span>
+            <span class="preset-sub">Subsurface Entrainment</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2 class="section-title">3. Upload Strip Image</h2>
+        <div class="drop-zone" id="dropZone">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <p class="drop-text">Drag &amp; drop strip image here, or <span>browse</span></p>
+          <input type="file" id="fileInput" accept="image/*" class="file-input-hidden">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2 class="section-title">4. Inspection Parameters</h2>
+        <div class="control-row">
+          <div class="slider-header">
+            <label for="confSlider">Confidence Threshold:</label>
+            <span class="slider-val" id="confVal">0.25</span>
+          </div>
+          <input type="range" id="confSlider" min="0.05" max="0.90" step="0.05" value="0.25" class="styled-slider">
+        </div>
+
+        <div class="control-row">
+          <div class="slider-header">
+            <label for="speedSlider">Line Speed (m/min):</label>
+            <span class="slider-val" id="speedVal">600</span>
+          </div>
+          <input type="range" id="speedSlider" min="100" max="1500" step="50" value="600" class="styled-slider">
+          <span class="param-sub" id="speedSub">10.0 m/s (Cold Rolling / Finishing Line)</span>
+        </div>
+
+        <div class="control-toggle">
+          <label class="toggle-switch">
+            <input type="checkbox" id="verifyToggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <div class="toggle-text">
+            <span class="toggle-title">ResNet-50 False Alarm Filter</span>
+            <span class="toggle-desc">Ensemble secondary verification</span>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="inspectBtn" class="btn btn-primary">Run Inspection</button>
+          <button id="benchmarkBtn" class="btn btn-secondary">Line Speed Benchmark</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center & Right: Visual Canvas & Quality Dashboard -->
+    <section class="content-area">
+      
+      <!-- Top Overview Cards -->
+      <div class="metrics-ribbon">
+        <!-- Disposition Card -->
+        <div class="metric-card disposition-card" id="dispositionCard">
+          <div class="metric-label">Automated Coil Disposition</div>
+          <div class="metric-value-huge" id="dispositionValue">PRIME / PASS</div>
+          <div class="metric-sub" id="dispositionAction">Surface within prime tolerance. Clear for dispatch.</div>
+        </div>
+
+        <!-- Quality Grade Card -->
+        <div class="metric-card">
+          <div class="metric-label">Quality Grade</div>
+          <div class="grade-badge-wrap">
+            <span class="grade-badge" id="gradeBadge">A+</span>
+            <div class="grade-details">
+              <span class="grade-score" id="gradeScore">100% Score</span>
+              <span class="grade-sev" id="compositeSev">Severity: 0.0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Defect Count Card -->
+        <div class="metric-card">
+          <div class="metric-label">Defects Identified</div>
+          <div class="metric-value" id="defectCountVal">0</div>
+          <div class="defect-pills" id="defectPillsSummary">
+            <span class="pill-badge none">Zero defects</span>
+          </div>
+        </div>
+
+        <!-- Throughput Card -->
+        <div class="metric-card">
+          <div class="metric-label">Line Feasibility</div>
+          <div class="metric-value text-cyan" id="throughputFps">35.0 FPS</div>
+          <div class="metric-sub" id="throughputHeadroom">Headroom: 1.58x (Safe Buffer)</div>
+        </div>
+      </div>
+
+      <!-- Center Inspection Viewport -->
+      <div class="viewport-card">
+        <div class="viewport-header">
+          <div class="viewport-title-group">
+            <h3>Strip Vision Inspection Viewport</h3>
+            <span class="badge" id="viewportResolution">200 x 200 px</span>
+          </div>
+          <div class="viewport-actions">
+            <button class="view-mode-btn active" id="viewAnnotatedBtn">Annotated</button>
+            <button class="view-mode-btn" id="viewOriginalBtn">Raw Strip</button>
+            <button class="view-mode-btn" id="exportReportBtn">Export Report</button>
+          </div>
+        </div>
+
+        <div class="viewport-display" id="viewportDisplay">
+          <div class="image-wrapper" id="imageWrapper">
+            <img id="inspectionImage" src="/raw_images/scratches_1.jpg" alt="Steel Strip Image">
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+              <div class="spinner"></div>
+              <span>Processing strip through YOLOv8 neural pipeline...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viewport Telemetry Footer -->
+        <div class="viewport-footer">
+          <div class="footer-stat">
+            <span class="label">Preprocess:</span>
+            <span class="val" id="latencyPre">--</span>
+          </div>
+          <div class="footer-stat">
+            <span class="label">Inference:</span>
+            <span class="val" id="latencyInfer">--</span>
+          </div>
+          <div class="footer-stat">
+            <span class="label">Postprocess:</span>
+            <span class="val" id="latencyPost">--</span>
+          </div>
+          <div class="footer-stat highlight">
+            <span class="label">Total Latency:</span>
+            <span class="val" id="latencyTotal">--</span>
+          </div>
+          <div class="footer-stat">
+            <span class="label">Max Sustainable Speed:</span>
+            <span class="val" id="maxLineSpeed">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Defect Details & Metallurgical Root Cause Analysis -->
+      <div class="analysis-grid">
+        <!-- Defect List Table -->
+        <div class="details-card">
+          <div class="card-header">
+            <h3>Defect Classification &amp; Localization</h3>
+            <span class="count-badge" id="tableDefectCount">0 detected</span>
+          </div>
+          <div class="table-scroll">
+            <table class="defect-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Thumbnail</th>
+                  <th>Defect Class</th>
+                  <th>Confidence</th>
+                  <th>Severity</th>
+                  <th>Strip Zone</th>
+                  <th>Reworkable</th>
+                </tr>
+              </thead>
+              <tbody id="defectTableBody">
+                <tr>
+                  <td colspan="7" class="empty-state">No defects detected. Steel strip is prime quality.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Metallurgical Root Cause & Operator Action Panel -->
+        <div class="details-card root-cause-card">
+          <div class="card-header">
+            <h3>Metallurgical Root Cause &amp; Corrective Directives</h3>
+          </div>
+          <div class="root-cause-content" id="rootCauseContent">
+            <div class="empty-root-cause">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="info-icon">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <p>Select any defect row or run inspection to view metallurgical root causes, risk analysis, and mill operator actions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Benchmark Modal -->
+  <div class="modal-backdrop" id="benchmarkModal" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Production Line Stress Benchmark (RTX 5060 GPU)</h3>
+        <button class="close-btn" id="closeModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Runs continuous high-speed inference burst across 30 consecutive frames to calculate hardware latency percentiles and real-time mill line capacity.</p>
+        <div class="modal-stats-grid" id="modalStatsGrid">
+          <div class="modal-stat-box">
+            <div class="m-label">p50 Latency (Median)</div>
+            <div class="m-val" id="bmP50">--</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="m-label">p95 Latency (SLA)</div>
+            <div class="m-val" id="bmP95">--</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="m-label">p99 Latency (Worst)</div>
+            <div class="m-val" id="bmP99">--</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="m-label">Sustained FPS</div>
+            <div class="m-val text-cyan" id="bmFps">--</div>
+          </div>
+        </div>
+        <div class="line-capacity-box">
+          <h4>Line Speed Verification</h4>
+          <p id="bmLineVerdict">Calculating throughput capacity...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="runBenchmarkNowBtn">Execute 30-Frame Stress Test</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
