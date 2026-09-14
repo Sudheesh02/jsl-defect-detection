@@ -4,8 +4,18 @@
 
 ---
 
+## Deployment
+
+| Service | Direct Link | Status |
+| :--- | :--- | :--- |
+| **Vercel Live App** | [https://jsl-defect-detection.vercel.app](https://jsl-defect-detection.vercel.app/) | **Online / Production Ready** |
+| **Interactive API Docs** | [https://jsl-defect-detection.vercel.app/docs](https://jsl-defect-detection.vercel.app/docs) | **FastAPI Swagger UI (Interactive)** |
+
+---
+
 ## Contents
 
+- [Deployment](#deployment)
 - [1 Overview](#1-overview)
   - [1.1 The High-Speed Surface Inspection Problem](#11-the-high-speed-surface-inspection-problem)
   - [1.2 Dual-Stage Computer Vision Architecture](#12-dual-stage-computer-vision-architecture)
@@ -180,16 +190,18 @@ python scripts/benchmark_cli.py --iterations 30
 
 ## 5 REST API Endpoints
 
-The service exposes standardized OpenAPI endpoints:
+The service exposes standardized OpenAPI endpoints, accessible both in local deployments and directly on the live Vercel cloud service:
 
-| Endpoint | Method | Description |
-|---|:---:|---|
-| `/api/health` | `GET` | Hardware acceleration telemetry, device type, and model status |
-| `/api/detect` | `POST` | Single-frame multipart image upload with grade-sensitive disposition |
-| `/api/batch-detect` | `POST` | Batch multi-frame inspection with overall coil quality classification |
-| `/api/grades` | `GET` | List available stainless steel grades and sensitivity parameters |
-| `/api/meta` | `GET` | Complete metallurgical defect taxonomy and severity weights |
-| `/docs` | `GET` | Interactive Swagger API explorer |
+| Endpoint | Method | Description | Live Explorer |
+|---|:---:|---|:---:|
+| `/api/health` | `GET` | Hardware acceleration telemetry, device type, and model status | [Inspect](https://jsl-defect-detection.vercel.app/api/health) |
+| `/api/detect` | `POST` | Single-frame multipart image upload with grade-sensitive disposition | &mdash; |
+| `/api/batch-detect` | `POST` | Batch multi-frame inspection with overall coil quality classification | &mdash; |
+| `/api/grades` | `GET` | List available stainless steel grades and sensitivity parameters | [Inspect](https://jsl-defect-detection.vercel.app/api/grades) |
+| `/api/taxonomy` | `GET` | Complete 25-defect metallurgical taxonomy and root cause actions | [Inspect](https://jsl-defect-detection.vercel.app/api/taxonomy) |
+| `/api/samples` | `GET` | Curated real benchmark steel test strip catalog | [Inspect](https://jsl-defect-detection.vercel.app/api/samples) |
+| `/docs` | `GET` | Interactive Swagger UI API documentation | [Open Docs](https://jsl-defect-detection.vercel.app/docs) |
+| `/redoc` | `GET` | ReDoc OpenAPI specification documentation | [Open ReDoc](https://jsl-defect-detection.vercel.app/redoc) |
 
 ---
 
@@ -197,29 +209,29 @@ The service exposes standardized OpenAPI endpoints:
 
 ```text
 +-- api/
-¦   +-- index.py             # Vercel serverless entrypoint
+Â¦   +-- index.py             # Vercel serverless entrypoint
 +-- backend/
-¦   +-- api/
-¦   ¦   +-- routes_detect.py # Frame detection and batch API endpoints
-¦   ¦   +-- routes_meta.py   # Grade definitions and metadata routes
-¦   ¦   +-- schemas.py       # Pydantic data contracts
-¦   +-- core/
-¦   ¦   +-- classifier.py    # Dual-stage false alarm verifier
-¦   ¦   +-- detector.py      # Primary region proposal and image normalizer
-¦   ¦   +-- grade_profiles.py# ASTM chemical and aesthetic tolerance weights
-¦   ¦   +-- line_simulator.py# Mill velocity and line sync calculations
-¦   ¦   +-- metallurgy_engine.py # Severity metrics and disposition logic
-¦   +-- static/              # Dashboard UI (HTML, CSS, JS)
-¦   +-- app.py               # Main FastAPI application instance
-¦   +-- config.py            # Global thresholds and hardware configuration
+Â¦   +-- api/
+Â¦   Â¦   +-- routes_detect.py # Frame detection and batch API endpoints
+Â¦   Â¦   +-- routes_meta.py   # Grade definitions and metadata routes
+Â¦   Â¦   +-- schemas.py       # Pydantic data contracts
+Â¦   +-- core/
+Â¦   Â¦   +-- classifier.py    # Dual-stage false alarm verifier
+Â¦   Â¦   +-- detector.py      # Primary region proposal and image normalizer
+Â¦   Â¦   +-- grade_profiles.py# ASTM chemical and aesthetic tolerance weights
+Â¦   Â¦   +-- line_simulator.py# Mill velocity and line sync calculations
+Â¦   Â¦   +-- metallurgy_engine.py # Severity metrics and disposition logic
+Â¦   +-- static/              # Dashboard UI (HTML, CSS, JS)
+Â¦   +-- app.py               # Main FastAPI application instance
+Â¦   +-- config.py            # Global thresholds and hardware configuration
 +-- docs/
-¦   +-- problem_statement/   # JSL Problem Statement specification
+Â¦   +-- problem_statement/   # JSL Problem Statement specification
 +-- public/                  # Static CDN assets for Vercel deployment
 +-- sample_data/
-¦   +-- raw_images/          # Benchmark defect samples and clean strips
+Â¦   +-- raw_images/          # Benchmark defect samples and clean strips
 +-- scripts/
-¦   +-- benchmark_cli.py     # Hardware throughput benchmarking
-¦   +-- evaluate_dataset.py  # Dataset evaluation runner
+Â¦   +-- benchmark_cli.py     # Hardware throughput benchmarking
+Â¦   +-- evaluate_dataset.py  # Dataset evaluation runner
 +-- tests/                   # Pytest test suite (123 test cases)
 +-- conftest.py              # Root pytest path configuration
 +-- requirements.txt         # Minimal dependency manifest
