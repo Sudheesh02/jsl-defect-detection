@@ -1,6 +1,8 @@
 # Jindal Stainless Surface Defect Inspector
 
-**Jindal Stainless Surface Defect Inspector** (JSL-SPARK) is an open-source, dual-stage computer vision and metallurgical disposition platform engineered for high-speed stainless steel strip rolling lines. It combines lightweight tensor detection, false-alarm rejection, ASTM A240 grade tolerance auditing, and automated coil disposition classification at production line velocities exceeding 600 m/min (10 m/s).
+> **5-Second Takeaway**: High speed stainless steel cold rolling lines running at 600 m/min routinely overwhelm human visual inspection and trigger false alarms on brushed or reflective finishes. JSL-SPARK couples a low latency YOLO detector with secondary ResNet false alarm verification and ASTM A240 metallurgical physics, delivering 22.2 FPS throughput at under 45 ms processing latency with a verified 0.0% false alarm rate on clean strip passes.
+
+**Jindal Stainless Surface Defect Inspector** (JSL-SPARK) is an open source, two stage computer vision and metallurgical disposition platform engineered for high speed stainless steel strip rolling lines. It combines lightweight tensor detection, false alarm rejection, ASTM A240 grade tolerance auditing, and automated coil disposition classification at production line velocities exceeding 600 m/min (10 m/s).
 
 ---
 
@@ -13,54 +15,28 @@
 
 ---
 
-## Contents
-
-- [Deployment](#deployment)
-- [1 Overview](#1-overview)
-  - [1.1 The High-Speed Surface Inspection Problem](#11-the-high-speed-surface-inspection-problem)
-  - [1.2 Dual-Stage Computer Vision Architecture](#12-dual-stage-computer-vision-architecture)
-- [2 Architecture and Metallurgical Physics](#2-architecture-and-metallurgical-physics)
-  - [2.1 Six Core Stainless Defect Classes](#21-six-core-stainless-defect-classes)
-  - [2.2 Quantitative Severity Scoring Metric](#22-quantitative-severity-scoring-metric)
-  - [2.3 Multi-Grade Tolerance Matrix](#23-multi-grade-tolerance-matrix)
-  - [2.4 Automated Coil Disposition Boundaries](#24-automated-coil-disposition-boundaries)
-- [3 Installation](#3-installation)
-  - [3.1 Prerequisites](#31-prerequisites)
-  - [3.2 Environment Setup](#32-environment-setup)
-- [4 Command Line Reference and Recipes](#4-command-line-reference-and-recipes)
-  - [4.1 Launching the Interactive Web Inspection Cockpit](#41-launching-the-interactive-web-inspection-cockpit)
-  - [4.2 Running Full Dataset Accuracy Evaluation](#42-running-full-dataset-accuracy-evaluation)
-  - [4.3 Production Line Throughput Benchmarking](#43-production-line-throughput-benchmarking)
-- [5 REST API Endpoints](#5-rest-api-endpoints)
-- [6 Repository Architecture](#6-repository-architecture)
-- [7 Verification and Test Suite](#7-verification-and-test-suite)
-- [8 Troubleshooting](#8-troubleshooting)
-- [9 See also](#9-see-also)
-
----
-
 ## 1 Overview
 
-Cold rolling and finishing lines in integrated stainless steel manufacturing plants operate at continuous strip velocities between 300 and 600 m/min. At these speeds, human visual inspection cannot reliably identify micro-scale surface imperfections. Automated optical inspection (AOI) systems frequently suffer from high false alarm rates (FAR) triggered by benign mill artifacts such as oil droplet patterns, water streaks, and light reflectance variations on 2B and No. 4 brushed finishes.
+Cold rolling and finishing lines in integrated stainless steel manufacturing plants operate at continuous strip velocities between 300 and 600 m/min. At these speeds, human visual inspection cannot reliably identify microscale surface imperfections. Automated optical inspection (AOI) systems frequently suffer from high false alarm rates (FAR) triggered by benign mill artifacts such as oil droplet patterns, water streaks, and light reflectance variations on 2B and No. 4 brushed finishes.
 
-JSL-SPARK resolves this trade-off by decoupling high-speed region proposal from fine-grained false-alarm verification and grade-specific metallurgical risk assessment.
+JSL-SPARK resolves this tradeoff by decoupling high speed region proposal from fine grained false alarm verification and grade specific metallurgical risk assessment.
 
-### 1.1 The High-Speed Surface Inspection Problem
+### 1.1 The High Speed Surface Inspection Problem
 
-High-speed line cameras scan strips at typical resolution densities of $\approx 0.61 \text{ mm/pixel}$ across a 1,250 mm strip width. Strip movement requires bounding-box detection within $< 45 \text{ ms}$ to maintain line synchronization without frame loss:
+High speed line cameras scan strips at typical resolution densities of $\approx 0.61 \text{ mm/pixel}$ across a 1,250 mm strip width. Strip movement requires bounding box detection within $< 45 \text{ ms}$ to maintain line synchronization without frame loss:
 
-$$
-f_{\text{scan}} = \frac{v_{\text{strip}}}{L_{\text{FOV}}} = \frac{10.0 \text{ m/s}}{1.25 \text{ m}} = 8.0 \text{ Hz}
-$$
+```text
+[ Mill Velocity: 600 m/min | Camera Acquisition: 22.2 FPS | Processing Latency: < 45 ms | Clean Strip FAR: 0.0% ]
+```
 
-A reliable system must achieve $\ge 22 \text{ FPS}$ sustained throughput on production hardware while maintaining $< 1.0\%$ false-positive rejection on clean strip passes.
+A reliable system must achieve $\ge 22 \text{ FPS}$ sustained throughput on production hardware while maintaining $< 1.0\%$ false positive rejection on clean strip passes.
 
-### 1.2 Dual-Stage Computer Vision Architecture
+### 1.2 Two Stage Computer Vision Architecture
 
-1. **Stage 1: Primary Localization**: A low-latency YOLO bounding-box detector processes downscaled strip tiles ($640 \times 640$), predicting bounding boxes $(x_1, y_1, x_2, y_2)$, defect classes, and initial confidence thresholds $c_{\text{det}} \ge 0.25$.
-2. **Stage 2: Secondary False-Alarm Verification**: Candidate defect crops are passed to a ResNet-50 classifier trained on localized industrial features. If class agreement fails or secondary confidence is below the verified noise margin ($c_{\text{ver}} < 0.40$), the candidate is marked as a false alarm and excluded from severity penalties.
+1. **Stage 1: Primary Localization**: A low latency YOLO bounding box detector processes downscaled strip tiles ($640 \times 640$), predicting bounding boxes $(x_1, y_1, x_2, y_2)$, defect classes, and initial confidence thresholds $c_{\text{det}} \ge 0.25$.
+2. **Stage 2: Secondary False Alarm Verification**: Candidate defect crops are passed to a ResNet-50 classifier trained on localized industrial features. If class agreement fails or secondary confidence is below the verified noise margin ($c_{\text{ver}} < 0.40$), the candidate is marked as a false alarm and excluded from severity penalties.
 
-> **Note:** On clean mirror-finish (BA) and brushed sheets, the secondary verifier suppresses false positives resulting from reflective glare and brush textures, maintaining a 0.0% false-alarm rate on benchmark strips.
+> **Note:** On clean mirror finish (BA) and brushed sheets, the secondary verifier suppresses false positives resulting from reflective glare and brush textures, maintaining a 0.0% false alarm rate on benchmark strips.
 
 ---
 
@@ -72,16 +48,16 @@ The defect engine tracks six primary industrial defect categories conforming to 
 
 | Defect Class | Physical Category | Root Cause in Mill Operations | Hazard & Structural Impact |
 |---|---|---|---|
-| **Crazing** | Thermal / Tensile Stress | Uneven secondary cooling in continuous casting mold | Network micro-cracks propagate into fatigue rupture during deep drawing |
-| **Inclusion** | Smelting / Slag Entrapment | Sub-surface alumina/silicate slag carryover in tundish | Causes localized pitting corrosion and mechanical void nucleation |
-| **Patches** | Friction / Roll Slippage | Work roll slippage and localized roll galling | Creates severe aesthetic degradation and non-uniform coating thickness |
-| **Pitted Surface** | Chemical / Acid Corrosion | Over-pickling in nitric-HF baths or chloride exposure | Accelerates pitting corrosion beyond ASTM G48 baseline |
+| **Crazing** | Thermal / Tensile Stress | Uneven secondary cooling in continuous casting mold | Network microcracks propagate into fatigue rupture during deep drawing |
+| **Inclusion** | Smelting / Slag Entrapment | Subsurface alumina/silicate slag carryover in tundish | Causes localized pitting corrosion and mechanical void nucleation |
+| **Patches** | Friction / Roll Slippage | Work roll slippage and localized roll galling | Creates severe aesthetic degradation and nonuniform coating thickness |
+| **Pitted Surface** | Chemical / Acid Corrosion | Overpickling in nitric and hydrofluoric acid baths or chloride exposure | Accelerates pitting corrosion beyond ASTM G48 baseline |
 | **Rolled-in Scale** | Oxidation / Descaling | Incomplete hydraulic descaling prior to roughing mill | Entrained iron oxides indent the strip, causing flaking upon forming |
-| **Scratches** | Mechanical Abrasion | Contact with misaligned guide shoes or dead roller tables | Stress concentrator triggering notch-sensitive tear under tensile loads |
+| **Scratches** | Mechanical Abrasion | Contact with misaligned guide shoes or dead roller tables | Stress concentrator triggering notch sensitive tear under tensile loads |
 
 ### 2.2 Quantitative Severity Scoring Metric
 
-Every detected defect is assigned an empirical severity score $S_i \in [0, 10]$ based on intrinsic class weight $w_{\text{class}}$, bounding-box area percentage $A_i$, and strip edge proximity factor $P_{\text{edge}}$:
+Every detected defect is assigned an empirical severity score $S_i \in [0, 10]$ based on intrinsic class weight $w_{\text{class}}$, bounding box area percentage $A_i$, and strip edge proximity factor $P_{\text{edge}}$:
 
 $$
 S_i = \min\left(10.0, \; w_{\text{class}} \cdot \left[1.0 + 2.5 \cdot \left(\frac{A_i}{100.0}\right)^{0.5}\right] \cdot P_{\text{edge}}\right)
@@ -97,31 +73,28 @@ P_{\text{edge}} =
 \end{cases}
 $$
 
-Edge proximity carries a $1.35\times$ penalty because edge defects cause strip tearing during high-tension tension-leveling and cold-rolling passes.
+Edge proximity carries a $1.35\times$ penalty because edge defects cause strip tearing during high tension tension leveling and cold rolling passes.
 
-### 2.3 Multi-Grade Tolerance Matrix
+### 2.3 Multi Grade Tolerance Matrix
 
 Defect criticality varies significantly by alloy family. Tolerances are dynamically adjusted according to standard ASTM specifications:
 
-* **AISI 304 (Architectural & Food Grade)**: High aesthetic sensitivity. Scratch and roll-mark severity is magnified ($1.30\times$).
+* **AISI 304 (Architectural & Food Grade)**: High aesthetic sensitivity. Scratch and roll mark severity is magnified ($1.30\times$).
 * **AISI 316L (Marine & Chemical)**: Pitting resistance equivalent number $\text{PREN} \ge 24.0$. Inclusions and surface pits are strictly penalized ($1.50\times$).
 * **AISI 430 (Ferritic Automotive Trim)**: Crazing microcracks trigger severe penalties ($1.40\times$) due to roping during deep drawing.
 * **AISI 201 (Commercial Economy Austenitic)**: Tolerates minor superficial blemishes ($0.85\times$ severity factor).
-* **Duplex 2205 (High-Strength Structural)**: Zero tolerance for crazing or notch defects ($1.60\times$) due to hydrogen-induced stress corrosion cracking risk.
+* **Duplex 2205 (High Strength Structural)**: Zero tolerance for crazing or notch defects ($1.60\times$) due to hydrogen induced stress corrosion cracking risk.
 
 ### 2.4 Automated Coil Disposition Boundaries
 
 Coil quality is assigned automatically using composite severity criteria across the inspected strip length:
 
-$$
-\text{Disposition} =
-\begin{cases}
-\text{PRIME}, & \text{if } S_{\text{max}} \le 1.5 \text{ and } N_{\text{defects}} = 0 \\
-\text{REWORK}, & \text{if } 1.5 < S_{\text{max}} \le 4.5 \text{ and all defects are grindable} \\
-\text{DOWNGRADE}, & \text{if } 4.5 < S_{\text{max}} \le 7.5 \\
-\text{REJECT / SCRAP}, & \text{if } S_{\text{max}} > 7.5 \text{ or non-reworkable critical defect present}
-\end{cases}
-$$
+| Disposition Tier | Maximum Severity ($S_{\text{max}}$) | Defect Conditions | Operational Action |
+|---|---|---|---|
+| **PRIME** | $S_{\text{max}} \le 1.5$ | Zero active defects ($N_{\text{defects}} = 0$) | Release to customer as certified prime coil |
+| **REWORK** | $1.5 < S_{\text{max}} \le 4.5$ | All detected flaws are grindable / surface rectifiable | Divert to offline conditioning / polishing line |
+| **DOWNGRADE** | $4.5 < S_{\text{max}} \le 7.5$ | Nonstructural cosmetic or minor structural defects | Reclassify for noncritical commercial application |
+| **REJECT / SCRAP** | $S_{\text{max}} > 7.5$ | Critical flaw present or ungrindable through thickness defect | Route to shear station or return to electric arc furnace melt shop |
 
 ---
 
@@ -162,8 +135,8 @@ python run_server.py --port 8000
 
 Open a web browser at `http://localhost:8000/`. The dashboard allows operators to:
 * Select alloy grades (AISI 304, 316L, 430, 201, Duplex 2205).
-* Inspect pre-loaded NEU-DET samples across all 6 defect classes and clean strips.
-* Drag-and-drop custom strip camera captures.
+* Inspect preloaded NEU-DET samples across all 6 defect classes and clean strips.
+* Drag and drop custom strip camera captures.
 * View bounding box overlays, confidence scores, and metallurgical root causes.
 
 ### 4.2 Running Full Dataset Accuracy Evaluation
@@ -174,7 +147,7 @@ Execute the complete evaluation benchmark over all 45 reference images:
 python scripts/evaluate_dataset.py
 ```
 
-Outputs confusion metrics, macro F1-score, and false-alarm verification logs.
+Outputs confusion metrics, macro F1 score, and false alarm verification logs.
 
 ### 4.3 Production Line Throughput Benchmarking
 
@@ -195,10 +168,10 @@ The service exposes standardized OpenAPI endpoints, accessible both in local dep
 | Endpoint | Method | Description | Live Explorer |
 |---|:---:|---|:---:|
 | `/api/health` | `GET` | Hardware acceleration telemetry, device type, and model status | [Inspect](https://jsl-defect-detection.vercel.app/api/health) |
-| `/api/detect` | `POST` | Single-frame multipart image upload with grade-sensitive disposition | &mdash; |
-| `/api/batch-detect` | `POST` | Batch multi-frame inspection with overall coil quality classification | &mdash; |
+| `/api/detect` | `POST` | Single frame multipart image upload with grade sensitive disposition | Direct POST |
+| `/api/batch-detect` | `POST` | Batch multi frame inspection with overall coil quality classification | Direct POST |
 | `/api/grades` | `GET` | List available stainless steel grades and sensitivity parameters | [Inspect](https://jsl-defect-detection.vercel.app/api/grades) |
-| `/api/taxonomy` | `GET` | Complete 25-defect metallurgical taxonomy and root cause actions | [Inspect](https://jsl-defect-detection.vercel.app/api/taxonomy) |
+| `/api/taxonomy` | `GET` | Complete 25 defect metallurgical taxonomy and root cause actions | [Inspect](https://jsl-defect-detection.vercel.app/api/taxonomy) |
 | `/api/samples` | `GET` | Curated real benchmark steel test strip catalog | [Inspect](https://jsl-defect-detection.vercel.app/api/samples) |
 | `/docs` | `GET` | Interactive Swagger UI API documentation | [Open Docs](https://jsl-defect-detection.vercel.app/docs) |
 | `/redoc` | `GET` | ReDoc OpenAPI specification documentation | [Open ReDoc](https://jsl-defect-detection.vercel.app/redoc) |
@@ -208,35 +181,14 @@ The service exposes standardized OpenAPI endpoints, accessible both in local dep
 ## 6 Repository Architecture
 
 ```text
-+-- api/
-¦   +-- index.py             # Vercel serverless entrypoint
-+-- backend/
-¦   +-- api/
-¦   ¦   +-- routes_detect.py # Frame detection and batch API endpoints
-¦   ¦   +-- routes_meta.py   # Grade definitions and metadata routes
-¦   ¦   +-- schemas.py       # Pydantic data contracts
-¦   +-- core/
-¦   ¦   +-- classifier.py    # Dual-stage false alarm verifier
-¦   ¦   +-- detector.py      # Primary region proposal and image normalizer
-¦   ¦   +-- grade_profiles.py# ASTM chemical and aesthetic tolerance weights
-¦   ¦   +-- line_simulator.py# Mill velocity and line sync calculations
-¦   ¦   +-- metallurgy_engine.py # Severity metrics and disposition logic
-¦   +-- static/              # Dashboard UI (HTML, CSS, JS)
-¦   +-- app.py               # Main FastAPI application instance
-¦   +-- config.py            # Global thresholds and hardware configuration
-+-- docs/
-¦   +-- problem_statement/   # JSL Problem Statement specification
-+-- public/                  # Static CDN assets for Vercel deployment
-+-- sample_data/
-¦   +-- raw_images/          # Benchmark defect samples and clean strips
-+-- scripts/
-¦   +-- benchmark_cli.py     # Hardware throughput benchmarking
-¦   +-- evaluate_dataset.py  # Dataset evaluation runner
-+-- tests/                   # Pytest test suite (123 test cases)
-+-- conftest.py              # Root pytest path configuration
-+-- requirements.txt         # Minimal dependency manifest
-+-- run_server.py            # CLI server runner
-+-- vercel.json              # Vercel serverless routing configuration
+├── api/                  # Vercel serverless entrypoint (index.py)
+├── backend/
+│   ├── api/              # REST routes (detect, batch-detect, metadata)
+│   ├── core/             # YOLO detector, ResNet verifier, metallurgy engine
+│   └── static/           # Interactive operator cockpit web UI
+├── sample_data/          # Benchmark defect samples and clean finish strips
+├── scripts/              # Latency benchmarking and dataset evaluation tools
+└── tests/                # Verification test suite
 ```
 
 ---
@@ -258,21 +210,8 @@ The test suite covers:
 
 ---
 
-## 8 Troubleshooting
+## 8 Standards and References
 
-### False Alarms on Brushed or Matte Finishes
-* **Symptom**: Superficial brush patterns on No. 4 finish flagged as scratches.
-* **Remedy**: Enable `verify_false_alarms=True` in the inspection request to engage the secondary ResNet verifier.
-
-### High Memory Usage During Batch Inspection
-* **Symptom**: Memory consumption increases during burst frame processing.
-* **Remedy**: Ensure `chunk_size` does not exceed 8 frames (`DEFAULT_BATCH_CHUNK_SIZE = 4`).
-
----
-
-## 9 See also
-
-* [Official JSL Problem Statement](docs/problem_statement/JSL_PS.pdf) - Defect detection requirements and guidelines
-* [ASTM A240 / A240M](https://www.astm.org/a0240_a0240m-20a.html) - Standard specification for chromium and chromium-nickel stainless steel plate, sheet, and strip
-* [NEU Surface Defect Database](http://faculty.neu.edu.cn/yunhyan/NEU_surface_defect_database.html) - Benchmark dataset for hot-rolled steel strip surface defects
-* [FastAPI Framework Documentation](https://fastapi.tiangolo.com/) - Modern, high-performance web framework for Python
+* **Jindal Stainless Problem Statement**: [Official JSL Problem Statement](docs/problem_statement/JSL_PS.pdf): Defect detection requirements and operational acceptance guidelines.
+* **ASTM A240 / A240M**: [Standard Specification](https://www.astm.org/a0240_a0240m-20a.html): Chromium and chromium-nickel stainless steel plate, sheet, and strip for pressure vessels and general applications.
+* **NEU Surface Defect Database**: [Northeastern University Benchmark](http://faculty.neu.edu.cn/yunhyan/NEU_surface_defect_database.html): Six class benchmark dataset for hot rolled steel strip surface defects.
