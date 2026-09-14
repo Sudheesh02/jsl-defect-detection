@@ -1,6 +1,6 @@
 # Jindal Stainless Surface Defect Inspector
 
-> **5-Second Takeaway**: High speed stainless steel cold rolling lines running at 600 m/min routinely overwhelm human visual inspection and trigger false alarms on brushed or reflective finishes. JSL-SPARK couples a low latency YOLO detector with secondary ResNet false alarm verification and ASTM A240 metallurgical physics, delivering 22.2 FPS throughput at under 45 ms processing latency with a verified 0.0% false alarm rate on clean strip passes.
+> **5-Second Takeaway**: Line cameras running at 600 m/min routinely miss microdefects or trigger false alarms on brushed finishes. JSL-SPARK resolves this with a two stage detector coupling YOLO detection, secondary ResNet verification, and ASTM A240 physics, delivering 22.2 FPS throughput at < 45 ms latency with a 0.0% false alarm rate on clean strip passes.
 
 **Jindal Stainless Surface Defect Inspector** (JSL-SPARK) is an open source, two stage computer vision and metallurgical disposition platform engineered for high speed stainless steel strip rolling lines. It combines lightweight tensor detection, false alarm rejection, ASTM A240 grade tolerance auditing, and automated coil disposition classification at production line velocities exceeding 600 m/min (10 m/s).
 
@@ -210,7 +210,7 @@ The test suite covers:
 
 ---
 
-## 8 Standards and References
+## 8 Standards & References
 
 * **Jindal Stainless Problem Statement**: [Official JSL Problem Statement](docs/problem_statement/JSL_PS.pdf): Defect detection requirements and operational acceptance guidelines.
 * **ASTM A240 / A240M**: [Standard Specification](https://www.astm.org/a0240_a0240m-20a.html): Chromium and chromium-nickel stainless steel plate, sheet, and strip for pressure vessels and general applications.
